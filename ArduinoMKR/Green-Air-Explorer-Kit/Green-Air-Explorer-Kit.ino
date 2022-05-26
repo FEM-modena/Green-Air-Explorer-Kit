@@ -20,7 +20,7 @@ float temp_aria = 0;
 float umid_aria = 0;
 float luminosita = 0;
 int umid_terreno = 0;
-int anid_carbonica = 0;
+float anid_carbonica = 0;
 float particolato = 0;
 
 //Collegamento alla piattaforma GL-Blocks
@@ -69,7 +69,7 @@ void loop() {
 
   umid_terreno = Misura_Umidita_Terreno();
 
-  anid_carbonica = Misura_CO2_Analogico();
+  anid_carbonica = Misura_CO2();
 
   //tvoc = Misura_TVOC();
 

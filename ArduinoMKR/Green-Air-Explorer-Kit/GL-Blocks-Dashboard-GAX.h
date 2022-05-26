@@ -36,8 +36,7 @@ void Trasmetti_Dati_Cloud()
   "umid_terra": <hum>,
   "luminosita": <lum>
   "anid_carb": <co2>,
-  "part_pm10": <pm10>
-  "part_pm2_5": <pm2_5>  
+  "part": <pm10-2.5>  
 }
  */
 

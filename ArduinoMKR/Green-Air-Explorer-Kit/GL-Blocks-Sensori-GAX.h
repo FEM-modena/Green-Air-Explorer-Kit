@@ -11,17 +11,17 @@
   - Umidità  del terreno ( Capacitivo analogico) su A1
   - Illuminazione (Shield MKR Env) 
   - Anidride Carbonica (MH-Z19B) lettura analogica su A0
-  - Particolato PM10 e 2.5 (NOVA SDS-11) //Pin 13 RX e 14 TX Arduino NKR Serial1
+  - Particolato PM10 e 2.5 (Grove Dust Sensor) lettura PWM su D3
+  - Anidride Carbonica (Grove CO2 - Umid / Temp ) digitale I2C
   */
 
 //Libreria ENV Shield
 #include <Arduino_MKRENV.h>
 
-//Libreria per MH-Z19  //Da sostituire con sensore Grove
-#include "MH-Z19.h"
-#define PIN_MHZ19_ANALOG A0
-
-int last_ppmCO2;
+//Libreria per Grove CO2 Hum/Temp SCD30
+//https://wiki.seeedstudio.com/Grove-CO2_Temperature_Humidity_Sensor-SCD30/
+#include "SCD30.h"
+float last_ppmCO2;
 
 #define PIN_UMIDITA_TERRENO A1
 
@@ -32,7 +32,6 @@ int INTERVALLO_PARTICOLATO = 60000; //In millisecondi
 //Tempo di ultima lettura particolato
 unsigned long durataImpulsoLow = 0;
 long ultimaLetturaDust;
-
 
 /*************************************
  Funzioni dei BLOCCHI sensore
@@ -49,8 +48,8 @@ void Prepara_Sensori(void) {
     while (1);
   }   
 
-  // Start up del MH-Z19
-  MHZSetup();
+  //Avvio del Grove CO2 Temp/Hum SCD30
+  scd30.initialize();
 
   //Inizio temporizzazione particolato
   pinMode(PIN_SENSORE_PARTICOLATO, INPUT);
@@ -101,34 +100,26 @@ float Misura_Luce()
 }
 
 /** 
- *  Legge la CO2 dal MH-Z19B
- *  utilizzando la connessione seriale.
+ *  Legge la CO2 dall SCD30
+ *  dalla connessione I2C
  */
-int Misura_CO2_Seriale()
+float Misura_CO2()
 {
-  //Lettura CO2 MH-Z19B
-  int res = MHZReadCO2UART();  
-  //Se il risultato è positivo, si tratta di una misura
-  if (res >= 0) 
-    last_ppmCO2 = res;
+  //Lettura Dati
+  float res;
+  float result[3] = {0};
   
-  //altrimenti di un errore
-  else {
-    res = last_ppmCO2;
-    Serial.print("MH-Z19B ritorna:");        
-    Serial.print(res);
+  //Se il risultato è disponibile, lo legge
+  if(scd30.isAvailable()) {
+    scd30.getCarbonDioxideConcentration(result);
+    res = result[0];
+    last_ppmCO2 = res;
   }
+  else {
+    Serial.print("Valori CO2 non disponibili e non aggiornati");        
+    res = last_ppmCO2;        
+  }    
   return res;
-}
-
-/** 
- *  Legge la CO2 dal MH-Z19B
- *  il pin analogico
- */
-int Misura_CO2_Analogico()
-{
-  long va = analogRead(PIN_MHZ19_ANALOG);
-  return (int)map(va, 0, 512, 0, MHZ19_MAX_PPM_READING);
 }
 
 /**
