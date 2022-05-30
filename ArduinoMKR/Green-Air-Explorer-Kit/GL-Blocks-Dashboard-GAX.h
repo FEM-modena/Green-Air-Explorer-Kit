@@ -5,9 +5,6 @@
  */
  
 unsigned long lastConnectionTime = 0;   // tempo dell'ultima connessione al server
-#define POSTING_INTERVAL 30000L         // Intervallo tra gli aggiornamenti dashboard in milliseconds
-char dboard_server[] = "192.168.140.250"; // Dashboard Server
-int dboard_port = 8888;
 
 //Libreria JSON
 #include <ArduinoJson.h>  
@@ -74,13 +71,13 @@ void Trasmetti_Dati_Cloud()
     lastConnectionTime = millis();
     
     Serial.println("Misure inviate al Cloud IoT");
-    Accendi_LED_Per(3);
+    accendi_LED_per(3);
     
   } else {
     
     // if you couldn't make a connection:    
     Serial.println("Connessione al Cloud IoT non riuscita.");
-    Accendi_LED_Per(4);
+    accendi_LED_per(4);
   }
   
 }

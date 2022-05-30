@@ -100,13 +100,14 @@ void Connetti_WIFI(void)
     Serial.println("Comunicazione con il modulo WiFi fallita.");
     digitalWrite(PIN_LED1, HIGH);
     delay(3000); //LED Fisso per 3 secondi
-    Resetta();
+    //Resetta la scheda se PIN_RESET è cablato al RESET di MKR
+    digitalWrite(PIN_RESET, LOW);
   }
   
   // Tentativo di connessione al WiFi
   int tentativo = 0;
   while (wifi_status != WL_CONNECTED) {    
-    Accendi_LED_Per(1);
+    accendi_LED_per(1);
     Serial.print("Provo a connettermi alla WiFi SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
@@ -119,7 +120,8 @@ void Connetti_WIFI(void)
       Serial.println("Massimo numero di tentativi raggiunto.");
       digitalWrite(PIN_LED1, HIGH);
       delay(3000); //LED Fisso per 3 secondi
-      Resetta();
+      //Resetta la scheda se PIN_RESET è cablato al RESET di MKR
+      digitalWrite(PIN_RESET, LOW);
     }
   }
 
