@@ -20,17 +20,17 @@
 
 ## Collegamenti
 - Capacitive Soil Moisture Sensor v1.2
-> red -> 5V
-> black -> GND
-> yellow -> A1
+  - red -> 5V
+  - black -> GND
+  - yellow -> A1
 
 - Seed SCD30 CO2 Temp/Humidity
-> VCC -> 5V
-> GND -> GND
-> SCL -> 12SCL
-> SDA -> 11SDA
+  - VCC -> 5V
+  - GND -> GND
+  - SCL -> 12SCL
+  - SDA -> 11SDA
 
 - Grove Dust Sensor
-> 5V -> 5V
-> GND -> GND
-> PWM -> D3
+  - 5V -> 5V
+  - GND -> GND
+  - PWM -> D3
