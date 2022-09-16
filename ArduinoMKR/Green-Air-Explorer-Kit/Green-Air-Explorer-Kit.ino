@@ -15,7 +15,7 @@
 //*******************************************
 #define SECRET_SSID "FEM_WiFi"
 #define SECRET_PASS "wifipassword"
-#define CHIAVE_CLOUD "FEMGreenAirExplorer_serra1"
+#define CHIAVE_CLOUD "FEMGreenAirExplorer_serra"
 
 char dboard_server[] = "demo.thingsboard.io"; // Indirizzo IP/Internet del Dashboard Server
 int dboard_port = 80;                         // Porta TCP del server
@@ -147,7 +147,8 @@ void loop() {
 
   //Lettura sensore capacitivo umidità terreno
   long va = analogRead(PIN_UMIDITA_TERRENO);
-  umid_terreno = (int)map(va, 0, 1024, 100, 0); //Da tarare
+  int umid = (int)map(va, 520, 760, 100, 0); //Tarato sui sensori capacitivi Grove
+  umid_terreno = constrain(umid, 0, 100);
 
   //Misura dell'Anidride carbonica
   float result[3] = {0};
