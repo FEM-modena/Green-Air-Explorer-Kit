@@ -49,9 +49,11 @@ void accendi_LED_per(byte volte);
 //Libreria ENV Shield di Arduino
 //Installare da "Gestione Librerie"
 #include <Arduino_MKRENV.h>
-
+//https://github.com/Seeed-Studio/Seeed_SCD30
 //Libreria per Grove CO2 Hum/Temp SCD30
-//https://wiki.seeedstudio.com/Grove-CO2_Temperature_Humidity_Sensor-SCD30/
+//ATTENZIONE: NON INSTALLARE DA GESTIONE LIBRERIE: scaricare da repo Github
+//e copiarlo nella directory 'libraries' di Arduino!
+
 #include "SCD30.h"
 float last_ppmCO2;
 
