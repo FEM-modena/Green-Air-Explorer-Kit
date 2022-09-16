@@ -3,20 +3,22 @@
   Future Education Modena 2022
 
   Monitora: 
-  - Umidità /Temperatura (Shield MKR Env)
-  - Umidità  del terreno (Grove Sensore Conduzione o Capacitivo analogico)
-  - Anidride Carbonica (MH-Z19B) //Da modificare
+  - Umidità/Temperatura (Shield MKR Env)
+  - Illuminazione (Shield MKR Env)
+  - Umidità  del terreno (Grove Sensore Capacitivo analogico)
+  - Anidride Carbonica (Grove SCD-30)
+  - Qualità dell'Aria - inquinanti (Grove Air Quality v1.3)
   - Particolato (Grove Dust Sensor)
 */
 
 ///// NON SPOSTARE QUESTE DEFINIZIONI  /////
 //*******************************************
 #define SECRET_SSID "FEM_WiFi"
-#define SECRET_PASS "0h4orXc@yS3do"
-#define CHIAVE_CLOUD "Qk2xOVKxuxtqie6cofTq"
+#define SECRET_PASS "wifipassword"
+#define CHIAVE_CLOUD "FEMGreenAirExplorer_serra1"
 
-char dboard_server[] = "192.168.140.250"; // Indirizzo IP/Internet del Dashboard Server
-int dboard_port = 8888;                   // Porta IP del server
+char dboard_server[] = "demo.thingsboard.io"; // Indirizzo IP/Internet del Dashboard Server
+int dboard_port = 80;                         // Porta TCP del server
 
 //Variabili
 float temp_aria = 0;
@@ -25,8 +27,10 @@ float luminosita = 0;
 int umid_terreno = 0;
 float anid_carbonica = 0;
 float particolato = 0;
+int aq_valore;
+int aq_tend;
 
-//Collegare una resistenza da 1K in serie ad un led su questo pin
+//Collegare una resistenza da 1K o il Grove Led Rosso
 #define PIN_LED1 5
 //Collegare RESET a questo pin con un jumper
 #define PIN_RESET 4
@@ -42,13 +46,24 @@ void accendi_LED_per(byte volte);
 
 #include <Wire.h>  
 
-//Libreria ENV Shield
+//Libreria ENV Shield di Arduino
+//Installare da "Gestione Librerie"
 #include <Arduino_MKRENV.h>
 
 //Libreria per Grove CO2 Hum/Temp SCD30
 //https://wiki.seeedstudio.com/Grove-CO2_Temperature_Humidity_Sensor-SCD30/
 #include "SCD30.h"
 float last_ppmCO2;
+
+//Libreria per Grove Air Quality Sensor 1.3
+//ATTENZIONE: NON INSTALLARE DA GESTIONE LIBRERIE: scaricare da repo Github
+//e copiarlo nella directory 'libraries' di Arduino!
+//https://github.com/Seeed-Studio/Grove_Air_quality_Sensor
+#include"Air_Quality_Sensor.h"
+//Collegare il sensore Air Quality Sensor al connettore analogico indicato
+#define PIN_AIR_QUALITY A3
+AirQualitySensor sensore_aq = AirQualitySensor(PIN_AIR_QUALITY);
+String aq_stato;
 
 //Collegare il sensore capacitivo al connettore analogico indicato
 #define PIN_UMIDITA_TERRENO A1
@@ -69,23 +84,21 @@ long ultimaLetturaDust;
  */
 void setup() {
 
-  //Condifura il pin per il reset
+  //Configura il pin per il reset
   digitalWrite(PIN_RESET, HIGH);
   delay(100);
   pinMode(PIN_RESET, OUTPUT);
 
   //Attiva il Serial Monitor
   Serial.begin(9600);  
-  delay(2000); //Attesa setup della seriale
-  
-  accendi_LED_per(1); //Lampeggia 1 volta
+  delay(2000); //Tempo per aprire il serial monitor...
+  Serial.println("FEM - Green Air Explorer Kit");
 
   pinMode(PIN_LED1, OUTPUT);
   digitalWrite(PIN_LED1, LOW);
-
-  delay(2000); //Tempo per aprire il serial monitor...
-  Serial.println("FEM - Green Air Explorer Kit");
   
+  accendi_LED_per(1); //Lampeggia 1 volta
+
   Wire.begin(); //Inzializza I2C per l'ENV shield 
   accendi_LED_per(2); //Lampeggia 2 volte
 
@@ -99,6 +112,9 @@ void setup() {
 
   //Avvio del Grove CO2 Temp/Hum SCD30
   scd30.initialize();
+
+  //Avvio del Grove Air Quality Sensor
+  sensore_aq.init();
 
   //Inizio temporizzazione particolato
   pinMode(PIN_SENSORE_PARTICOLATO, INPUT);
@@ -157,7 +173,24 @@ void loop() {
 
     durataImpulsoLow = 0;
     ultimaLetturaDust = millis();
-  }  
+  } 
+
+  //Misura dell'Air Quality
+  aq_tend = sensore_aq.slope();
+  switch (aq_tend) {
+    case 0: 
+      aq_stato = "ALLARME";
+      break;
+    case 1:
+      aq_stato = "INQUINATO";
+      break;
+    case 2:
+      aq_stato = "BASSO INQUINAMENTO";
+      break;
+    case 3:  
+      aq_stato = "QUALITA' BUONA";
+  }
+  aq_valore = sensore_aq.getValue();
   
   accendi_LED_per(2); //Lampeggia il led per 2 volte
       
@@ -216,5 +249,10 @@ void mostra_valori_serial_monitor()
   
   Serial.print("Particolato = ");
   Serial.print(particolato);
-  Serial.println(" ppm"); 
+  Serial.println(" ppm");
+
+  Serial.print("Stato AQ = ");
+  Serial.println(aq_stato);
+  Serial.print("Lettura AQ = ");
+  Serial.println(aq_valore);
 }
