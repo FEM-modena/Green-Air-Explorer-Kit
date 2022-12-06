@@ -24,7 +24,9 @@ int dboard_port = 80;                         // Porta TCP del server
 float temp_aria = 0;
 float umid_aria = 0;
 float luminosita = 0;
-int umid_terreno = 0;
+int umid_terreno1 = 0;
+int umid_terreno2 = 0;
+int umid_terreno3 = 0;
 float anid_carbonica = 0;
 float particolato = 0;
 int aq_valore;
@@ -61,14 +63,16 @@ float last_ppmCO2;
 //ATTENZIONE: NON INSTALLARE DA GESTIONE LIBRERIE: scaricare da repo Github
 //e copiarlo nella directory 'libraries' di Arduino!
 //https://github.com/Seeed-Studio/Grove_Air_quality_Sensor
-#include"Air_Quality_Sensor.h"
+#include "Air_Quality_Sensor.h"
 //Collegare il sensore Air Quality Sensor al connettore analogico indicato
 #define PIN_AIR_QUALITY A3
 AirQualitySensor sensore_aq = AirQualitySensor(PIN_AIR_QUALITY);
 String aq_stato;
 
-//Collegare il sensore capacitivo al connettore analogico indicato
-#define PIN_UMIDITA_TERRENO A1
+//Collegare il sensore capacitivo ai connettori analogici indicato
+#define PIN_UMIDITA_1 A1
+#define PIN_UMIDITA_2 A4
+#define PIN_UMIDITA_3 A5
 
 //Collegare il sensore di particolato al connettore digitale indicato
 #define PIN_SENSORE_PARTICOLATO 3
@@ -148,9 +152,9 @@ void loop() {
   luminosita = ENV.readIlluminance();
 
   //Lettura sensore capacitivo umidità terreno
-  long va = analogRead(PIN_UMIDITA_TERRENO);
-  int umid = (int)map(va, 520, 760, 100, 0); //Tarato sui sensori capacitivi Grove
-  umid_terreno = constrain(umid, 0, 100);
+  umid_terreno1 = leggi_sens_umidita(PIN_UMIDITA_1);
+  umid_terreno2 = leggi_sens_umidita(PIN_UMIDITA_2);
+  umid_terreno3 = leggi_sens_umidita(PIN_UMIDITA_3);
 
   //Misura dell'Anidride carbonica
   float result[3] = {0};
@@ -212,6 +216,18 @@ void loop() {
 }
 
 /**
+ * Procedura di lettura umidità terreno
+ */
+int leggi_sens_umidita(int pin)
+{
+  delay(10); //Breve ritardo per letture analogiche consecutive  
+  long va = analogRead(pin);
+  int umid = (int)map(va, 520, 760, 100, 0); //Tarato sui sensori capacitivi Grove
+  umid = constrain(umid, 0, 100);
+  return umid;
+}
+
+/**
  * Lampeggia il LED sul pin PIN_LED1 per un numero di volte
  */
 void accendi_LED_per(byte volte) 
@@ -238,8 +254,16 @@ void mostra_valori_serial_monitor()
   Serial.print(umid_aria);
   Serial.println(" %");
 
-  Serial.print("Umid. terreno = ");
-  Serial.print(umid_terreno);
+  Serial.print("Umid. terr. s.1 = ");
+  Serial.print(umid_terreno1);
+  Serial.println(" %");
+
+  Serial.print("Umid. terr. s.2 = ");
+  Serial.print(umid_terreno2);
+  Serial.println(" %");
+
+  Serial.print("Umid. terr. s.3 = ");
+  Serial.print(umid_terreno3);
   Serial.println(" %");
 
   Serial.print("Illuminazione = ");

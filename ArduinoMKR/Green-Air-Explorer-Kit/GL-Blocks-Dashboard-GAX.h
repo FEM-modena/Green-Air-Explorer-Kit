@@ -9,7 +9,7 @@ unsigned long lastConnectionTime = 0;   // tempo dell'ultima connessione al serv
 //Libreria JSON
 #include <ArduinoJson.h>  
 //vedi https://arduinojson.org/v5/assistant/
-const size_t json_capacity = JSON_OBJECT_SIZE(8) + 101; 
+const size_t json_capacity = JSON_OBJECT_SIZE(10) + 133; 
 StaticJsonDocument<json_capacity> doc;
 
 /*************************************
@@ -30,8 +30,10 @@ void Trasmetti_Dati_Cloud()
 {
   "temp_aria": <temp>,
   "umid_aria": <hum>,
-  "umid_terra": <hum>,
-  "luminosita": <lum>
+  "umid_terra1": <hum1>,
+  "umid_terra2": <hum2>,
+  "umid_terra3": <hum3>,
+  "luminosita": <lum>,
   "anid_carb": <co2>,
   "part": <pm10-2.5>, 
   "aq_tend": <tend_aq>,
@@ -42,7 +44,9 @@ void Trasmetti_Dati_Cloud()
   // Carica le misure nel documento JSON
   doc["temp_aria"] = temp_aria;
   doc["umid_aria"] = umid_aria;
-  doc["umid_terra"] = umid_terreno;
+  doc["umid_terra1"] = umid_terreno1;
+  doc["umid_terra2"] = umid_terreno2;
+  doc["umid_terra3"] = umid_terreno3;
   doc["luminosita"] = luminosita;
   doc["anid_carb"] = anid_carbonica;  
   // doc["tvoc"] = tvoc;  
@@ -61,7 +65,8 @@ void Trasmetti_Dati_Cloud()
     Serial.println("Connesso al Cloud IoT");
     // Make a HTTP request:
     client.println("POST /api/v1/" CHIAVE_CLOUD "/telemetry HTTP/1.1"); 
-    client.println("Host: ");  
+    String host_string = String("Host: ") + String(dboard_server);
+    client.println(host_string);  
     client.println("Connection: close");  
     client.print("Content-Length: ");  
     client.println(measureJson(doc));  
