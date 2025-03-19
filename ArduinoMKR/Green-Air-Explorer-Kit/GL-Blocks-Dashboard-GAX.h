@@ -86,7 +86,7 @@ void Trasmetti_Dati_Cloud()
     
     // if you couldn't make a connection:    
     Serial.println("Connessione al Cloud IoT non riuscita.");
-    accendi_LED_per(4);
+    accendi_LED_per(1);
   }
   
 }

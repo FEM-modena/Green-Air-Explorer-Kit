@@ -11,7 +11,7 @@ WiFiClient client;
 char ssid[] = SECRET_SSID; // SSID (name)
 char pass[] = SECRET_PASS; // WIFI pwd
 
-#define MAX_TENTATIVI_WIFI 10
+#define MAX_TENTATIVI_WIFI 5
 
 /*************************************
  Funzioni dei BLOCCHI WiFi
@@ -88,12 +88,13 @@ void printWifiStatus() {
 
 /**
  * Si connette alla WiFi configurata
+ * Ritorna "true" se la connessione è avvenuta
  */
-void Connetti_WIFI(void)
+boolean Connetti_WIFI(void)
 {  
   int wifi_status = report_wifi_status();
   // if connected, exit
-  if (wifi_status == WL_CONNECTED) return;
+  if (wifi_status == WL_CONNECTED) return true;
 
   // Se il WiFi Module non risponde, reset di Arduino
   if (wifi_status == WL_NO_MODULE) {
@@ -102,6 +103,7 @@ void Connetti_WIFI(void)
     delay(3000); //LED Fisso per 3 secondi
     //Resetta la scheda se PIN_RESET è cablato al RESET di MKR
     digitalWrite(PIN_RESET, LOW);
+    return false;
   }
   
   // Tentativo di connessione al WiFi
@@ -120,13 +122,13 @@ void Connetti_WIFI(void)
       Serial.println("Massimo numero di tentativi raggiunto.");
       digitalWrite(PIN_LED1, HIGH);
       delay(3000); //LED Fisso per 3 secondi
-      //Resetta la scheda se PIN_RESET è cablato al RESET di MKR
-      digitalWrite(PIN_RESET, LOW);
+      digitalWrite(PIN_LED1, LOW);
+      return false;
     }
   }
 
   Serial.println("Connesso alla WiFi!");
-  delay(2000);
+  delay(1000);
   printWifiStatus();
-  
+  return true;
 }

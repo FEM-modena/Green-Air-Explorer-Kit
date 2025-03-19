@@ -15,10 +15,11 @@
 //*******************************************
 #define SECRET_SSID "FEM_WiFi"
 #define SECRET_PASS "wifipassword"
-#define CHIAVE_CLOUD "FEMGreenAirExplorer_serra"
+//#define SECRET_PASS "0h4orXc@yS3do"
+#define CHIAVE_CLOUD "FEMGreenAirExplorer"
 
-char dboard_server[] = "demo.thingsboard.io"; // Indirizzo IP/Internet del Dashboard Server
-int dboard_port = 80;                         // Porta TCP del server
+char dboard_server[] = "iot.fem.digital"; // Indirizzo IP/Internet del Dashboard Server
+int dboard_port = 80;                     // Porta TCP del server
 
 //Variabili
 float temp_aria = 0;
@@ -128,11 +129,9 @@ void setup() {
 
   accendi_LED_per(3); //Lampeggia 3 volte
 
-  // Connessione al WiFi: vedi il file GL-Blocks-WiFi.h
-  Connetti_WIFI();  
-  
-  accendi_LED_per(4); //Lampeggia 4 volte: PRONTI   
-
+  // Connessione al WiFi NON BLOCCANTE: vedi il file GL-Blocks-WiFi.h
+  if (Connetti_WIFI()) accendi_LED_per(4); //Lampeggia 4 volte: PRONTI   
+  else Serial.println("WiFi non disponibile in avvio"); 
 }
 
 /**
