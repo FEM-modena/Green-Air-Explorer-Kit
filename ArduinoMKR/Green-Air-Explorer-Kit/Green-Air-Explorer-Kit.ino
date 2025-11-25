@@ -15,7 +15,6 @@
 //*******************************************
 #define SECRET_SSID "FEM_WiFi"
 #define SECRET_PASS "wifipassword"
-//#define SECRET_PASS "0h4orXc@yS3do"
 #define CHIAVE_CLOUD "FEMGreenAirExplorer"
 
 char dboard_server[] = "iot.fem.digital"; // Indirizzo IP/Internet del Dashboard Server
@@ -72,8 +71,8 @@ String aq_stato;
 
 //Collegare il sensore capacitivo ai connettori analogici indicato
 #define PIN_UMIDITA_1 A1
-#define PIN_UMIDITA_2 A4
-#define PIN_UMIDITA_3 A5
+//#define PIN_UMIDITA_2 A4
+//#define PIN_UMIDITA_3 A5
 
 //Collegare il sensore di particolato al connettore digitale indicato
 #define PIN_SENSORE_PARTICOLATO 3
@@ -152,8 +151,8 @@ void loop() {
 
   //Lettura sensore capacitivo umidità terreno
   umid_terreno1 = leggi_sens_umidita(PIN_UMIDITA_1);
-  umid_terreno2 = leggi_sens_umidita(PIN_UMIDITA_2);
-  umid_terreno3 = leggi_sens_umidita(PIN_UMIDITA_3);
+  //umid_terreno2 = leggi_sens_umidita(PIN_UMIDITA_2);
+  //umid_terreno3 = leggi_sens_umidita(PIN_UMIDITA_3);
 
   //Misura dell'Anidride carbonica
   float result[3] = {0};
@@ -253,10 +252,11 @@ void mostra_valori_serial_monitor()
   Serial.print(umid_aria);
   Serial.println(" %");
 
-  Serial.print("Umid. terr. s.1 = ");
+  Serial.print("Umid. terreno = ");
   Serial.print(umid_terreno1);
   Serial.println(" %");
 
+  /*
   Serial.print("Umid. terr. s.2 = ");
   Serial.print(umid_terreno2);
   Serial.println(" %");
@@ -264,6 +264,7 @@ void mostra_valori_serial_monitor()
   Serial.print("Umid. terr. s.3 = ");
   Serial.print(umid_terreno3);
   Serial.println(" %");
+  */
 
   Serial.print("Illuminazione = ");
   Serial.print(luminosita);
