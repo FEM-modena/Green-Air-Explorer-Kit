@@ -13,9 +13,13 @@
 
 ///// NON SPOSTARE QUESTE DEFINIZIONI  /////
 //*******************************************
+
+//#define USA_PASS_CIFRATA
 #define SECRET_SSID "FEM_WiFi"
 #define SECRET_PASS "wifipassword"
+//#define SECRET_PASS {118, 45, 121, 66, 57, 49, 23, 51, 63, 22, 126, 73, 36}
 #define CHIAVE_CLOUD "FEMGreenAirExplorer"
+
 
 char dboard_server[] = "iot.fem.digital"; // Indirizzo IP/Internet del Dashboard Server
 int dboard_port = 80;                     // Porta TCP del server
@@ -283,3 +287,4 @@ void mostra_valori_serial_monitor()
   Serial.print("Lettura AQ = ");
   Serial.println(aq_valore);
 }
+

@@ -9,13 +9,30 @@
 #include <WiFiNINA.h>
 WiFiClient client;
 char ssid[] = SECRET_SSID; // SSID (name)
-char pass[] = SECRET_PASS; // WIFI pwd
+char pass[50]; // WIFI pwd
+
+//Variabili per la cifratura password
+const char FEM_KEY[] = "FEM-Kits"; //NON modificare mai!
 
 #define MAX_TENTATIVI_WIFI 5
 
 /*************************************
  Funzioni dei BLOCCHI WiFi
  *************************************/
+
+/**
+ * Codec per la cifratura della password
+ */
+void xor_cipher(char *data, char *ciphered) {
+    size_t data_len = strlen(data);
+    size_t key_len = strlen(FEM_KEY);
+
+    strcpy(ciphered, (const char *)data);
+    for (size_t i = 0; i < data_len; i++) {
+        // Applica lo XOR usando la chiave in modo ciclico
+        ciphered[i] = ciphered[i] ^ FEM_KEY[i % key_len];
+    }    
+}
 
 /**
  * Stampa lo stato della WiFi
@@ -106,6 +123,14 @@ boolean Connetti_WIFI(void)
     return false;
   }
   
+  //Lettura della password
+  #ifdef USA_PASS_CIFRATA
+    unsigned char cpass[] = SECRET_PASS;
+    xor_cipher((char *)cpass, pass);    
+  #else
+    strcpy(pass, SECRET_PASS);
+  #endif
+
   // Tentativo di connessione al WiFi
   int tentativo = 0;
   while (wifi_status != WL_CONNECTED) {    
