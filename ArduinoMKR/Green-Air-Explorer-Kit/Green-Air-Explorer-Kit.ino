@@ -20,7 +20,6 @@
 //#define SECRET_PASS {118, 45, 121, 66, 57, 49, 23, 51, 63, 22, 126, 73, 36}
 #define CHIAVE_CLOUD "FEMGreenAirExplorer"
 
-
 char dboard_server[] = "iot.fem.digital"; // Indirizzo IP/Internet del Dashboard Server
 int dboard_port = 80;                     // Porta TCP del server
 
@@ -81,7 +80,7 @@ String aq_stato;
 //Collegare il sensore di particolato al connettore digitale indicato
 #define PIN_SENSORE_PARTICOLATO 3
 //Periodo di lettura
-int INTERVALLO_PARTICOLATO = 60000; //In millisecondi: 1000 = 1 sec
+int INTERVALLO_PARTICOLATO = 10000; //In millisecondi: 1000 = 1 sec
 
 //Misura del particolato proporzionale alla durata dell'impulso
 unsigned long durataImpulsoLow = 0;
@@ -171,18 +170,26 @@ void loop() {
     Serial.print("Misura CO2 non ancora disponibile: non aggiornato");        
     anid_carbonica = last_ppmCO2;        
   }    
+  Serial.println();
 
-  //Misura del particolato
-  unsigned long durata = pulseIn(PIN_SENSORE_PARTICOLATO, LOW);
-  durataImpulsoLow = durataImpulsoLow + durata;
-
-  if ((millis() - ultimaLetturaDust) > INTERVALLO_PARTICOLATO) {
-    float ratio = durataImpulsoLow/(INTERVALLO_PARTICOLATO * 10.0);
-    particolato = 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62;
-
-    durataImpulsoLow = 0;
-    ultimaLetturaDust = millis();
+  //Misura del particolato: cilci di lettura in un intervallo temporale
+  Serial.println("Inizio ciclo lettura del particolato");        
+  unsigned long startLetturaDust = millis();
+  unsigned long tempoDaUltimaLett = 0;
+  durataImpulsoLow = 0;
+  while (tempoDaUltimaLett < INTERVALLO_PARTICOLATO) {
+    unsigned long durata = pulseIn(PIN_SENSORE_PARTICOLATO, LOW);
+    durataImpulsoLow = durataImpulsoLow + durata;
+    tempoDaUltimaLett = millis() - startLetturaDust;
   } 
+  Serial.println("Fine ciclo lettura del particolato");
+  if (durataImpulsoLow > 0) {
+    //Serial.print("durata tot: ");Serial.println(durataImpulsoLow);
+    float ratio = durataImpulsoLow/(INTERVALLO_PARTICOLATO * 10.0);  //10.0 per avere la percentuale : 100/1000(microsec per millis)
+    particolato = 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62;
+    particolato = particolato * 3.531; //conversione in pcs / l: 0,01 cf = 0,28317 L
+  }
+  else particolato = 0;
 
   //Misura dell'Air Quality
   aq_tend = sensore_aq.slope();
@@ -214,7 +221,7 @@ void loop() {
   Trasmetti_Dati_Cloud();    
 
   //30 sec tra un ciclo e il prossimo
-  delay(30000); 
+  delay(20000); 
 }
 
 /**
@@ -280,7 +287,7 @@ void mostra_valori_serial_monitor()
   
   Serial.print("Particolato = ");
   Serial.print(particolato);
-  Serial.println(" ppm");
+  Serial.println(" p/L");
 
   Serial.print("Stato AQ = ");
   Serial.println(aq_stato);
